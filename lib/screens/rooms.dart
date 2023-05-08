@@ -27,7 +27,6 @@ class _RoomScreenState extends State<RoomScreen> {
     'images/b10.jpg',
   ];
   Random random = new Random();
-
   List<dynamic> _roomList = [];
   int userId = 0;
   bool _loading = true;

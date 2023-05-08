@@ -9,7 +9,9 @@ const userURL = baseURL + '/teacher/user';
 const roomsURL = baseURL + '/teacher/rooms';
 const CommentUrl = baseURL + '/teacher/announcements';
 const AnnounceUrl = baseURL + '/teacher/rooms';
-
+const createRoomURL = baseURL + '/teacher/rooms/create';
+const coursesURL = baseURL + '/teacher/courses';
+const createAssignmentURL = baseURL + '/teacher/rooms';
 // ----- Errors -----
 const serverError = 'Server error';
 const unauthorized = 'Unauthorized';

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/models/user_model.dart';
+import 'package:stepteacher/screens/comment.dart';
+import 'package:stepteacher/screens/create_room.dart';
 import 'package:stepteacher/screens/login.dart';
 import 'package:stepteacher/screens/profile.dart';
 import 'package:stepteacher/screens/rooms.dart';
@@ -108,6 +110,14 @@ class _HomeState extends State<Home> {
         ),
       ),
       body: currentIndex == 0 ? RoomScreen() : Profile(user: user),
+      floatingActionButton: FloatingActionButton(
+        elevation: 0,
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => CreateRoomForm()));
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

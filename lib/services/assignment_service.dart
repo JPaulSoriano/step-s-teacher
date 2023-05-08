@@ -1,25 +1,24 @@
-// Get room announcements
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:stepteacher/constants.dart';
-import 'package:stepteacher/models/announcement_model.dart';
+import 'package:stepteacher/models/assignment_model.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/services/user_service.dart';
 
-Future<ApiResponse> getAnnouncements(int roomId) async {
+Future<ApiResponse> getAssignments(int roomId) async {
   ApiResponse apiResponse = ApiResponse();
   try {
     String token = await getToken();
-    final response = await http
-        .get(Uri.parse('$roomsURL/$roomId/announcements'), headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    });
+    final response = await http.get(Uri.parse('$roomsURL/$roomId/assignments'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token'
+        });
 
     switch (response.statusCode) {
       case 200:
-        apiResponse.data = jsonDecode(response.body)['announcements']
-            .map((p) => Announcement.fromJson(p))
+        apiResponse.data = jsonDecode(response.body)['assignments']
+            .map((p) => Assignment.fromJson(p))
             .toList();
         apiResponse.data as List<dynamic>;
         break;
@@ -30,6 +29,8 @@ Future<ApiResponse> getAnnouncements(int roomId) async {
         apiResponse.error = unauthorized;
         break;
       default:
+        print('Request failed with status: ${response.statusCode}.');
+        print('Response body: ${response.body}');
         apiResponse.error = somethingWentWrong;
         break;
     }
@@ -40,18 +41,33 @@ Future<ApiResponse> getAnnouncements(int roomId) async {
   return apiResponse;
 }
 
-// Create announcement
-Future<ApiResponse> createAnnouncement(String roomKey, String? body) async {
+// Create assignment
+Future<ApiResponse> createAssignment(
+  String roomKey,
+  String? title,
+  String? instructions,
+  String? due_date,
+  String? points,
+  String? grading,
+  String? allowed_submission,
+) async {
   ApiResponse apiResponse = ApiResponse();
   try {
     String token = await getToken();
-    final response = await http
-        .post(Uri.parse('$AnnounceUrl/$roomKey/announce'), headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $token'
-    }, body: {
-      'body': body
-    });
+    final response = await http.post(
+        Uri.parse('$createAssignmentURL/$roomKey/createassignment'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: {
+          'title': title,
+          'instructions': instructions,
+          'due_date': due_date,
+          'points': points,
+          'grading': grading,
+          'allowed_submission': allowed_submission,
+        });
 
     switch (response.statusCode) {
       case 200:

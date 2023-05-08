@@ -33,3 +33,43 @@ Future<ApiResponse> getRooms() async {
   }
   return apiResponse;
 }
+
+// Create room
+Future<ApiResponse> createRoom(
+    String? subject, String? section, String? course, String? year) async {
+  ApiResponse apiResponse = ApiResponse();
+  try {
+    String token = await getToken();
+    final response = await http.post(Uri.parse(createRoomURL), headers: {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token'
+    }, body: {
+      'name': subject,
+      'subject': subject,
+      'section': section,
+      'course': course,
+      'year': year,
+    });
+
+    switch (response.statusCode) {
+      case 200:
+        apiResponse.data = jsonDecode(response.body)['message'];
+        break;
+      case 403:
+        apiResponse.error = jsonDecode(response.body)['message'];
+        break;
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        print('Request failed with status: ${response.statusCode}.');
+        print('Response body: ${response.body}');
+        break;
+    }
+  } catch (e) {
+    print(e);
+    apiResponse.error = serverError;
+  }
+  return apiResponse;
+}

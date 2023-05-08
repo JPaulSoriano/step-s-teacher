@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:stepteacher/palette.dart';
 import 'package:stepteacher/screens/loading.dart';
 
 void main() {
@@ -12,6 +14,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'STEP S TEACHER',
+      theme: ThemeData(
+        primarySwatch: Palette.kToDark,
+        textTheme: GoogleFonts.poppinsTextTheme(
+          Theme.of(context).textTheme,
+        ),
+      ),
+      debugShowCheckedModeBanner: false,
       home: Loading(),
     );
   }

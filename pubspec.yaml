@@ -40,6 +40,9 @@ dependencies:
   cached_network_image: ^3.2.3
   url_launcher: ^6.1.10
   intl: ^0.18.0
+  permission_handler: ^10.2.0
+  google_fonts: ^4.0.3
+  simple_speed_dial: ^0.1.7
 
 dev_dependencies:
   flutter_test:

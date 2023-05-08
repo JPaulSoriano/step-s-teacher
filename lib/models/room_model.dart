@@ -1,5 +1,3 @@
-import 'user_model.dart';
-
 class Room {
   int? id;
   String? name;

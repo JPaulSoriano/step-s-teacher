@@ -1,14 +1,20 @@
 import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:simple_speed_dial/simple_speed_dial.dart';
 import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/announcement_model.dart';
+import 'package:stepteacher/models/assignment_model.dart';
 import 'package:stepteacher/models/people_model.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/models/room_model.dart';
+import 'package:stepteacher/palette.dart';
+import 'package:stepteacher/screens/assignment_detail.dart';
 import 'package:stepteacher/screens/comment.dart';
+import 'package:stepteacher/screens/create_assignment.dart';
 import 'package:stepteacher/screens/login.dart';
 import 'package:stepteacher/services/announcement_service.dart';
+import 'package:stepteacher/services/assignment_service.dart';
 import 'package:stepteacher/services/people%20service.dart';
 import 'package:stepteacher/services/user_service.dart';
 import 'dart:async';
@@ -40,6 +46,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
   Random random = new Random();
   List<dynamic> _announcementsList = [];
   List<dynamic> _peopleList = [];
+  List<dynamic> _assignmentsList = [];
   bool _loading = true;
   int userId = 0;
   int _currentIndex = 0;
@@ -51,6 +58,11 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
         widget.room.key!, _txtAnnouncementController.text);
 
     if (response.error == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${response.data}'),
+        ),
+      );
       _txtAnnouncementController.clear();
       _getAnnouncements();
     } else if (response.error == unauthorized) {
@@ -112,6 +124,28 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
     }
   }
 
+  // Get Assignments
+  Future<void> _getAssignments() async {
+    userId = await getUserId();
+    ApiResponse response = await getAssignments(widget.room.id ?? 0);
+
+    if (response.error == null) {
+      setState(() {
+        _assignmentsList = response.data as List<dynamic>;
+        _loading = _loading ? !_loading : _loading;
+      });
+    } else if (response.error == unauthorized) {
+      logout().then((value) => {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => Login()),
+                (route) => false)
+          });
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('${response.error}')));
+    }
+  }
+
   googleMeet() async {
     final url = widget.room.vclink ?? 'https://meet.google.com/';
     final uri = Uri.parse(url);
@@ -122,6 +156,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
   void initState() {
     _getAnnouncements();
     _getPeople();
+    _getAssignments();
     super.initState();
   }
 
@@ -213,6 +248,38 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
           Expanded(child: _buildBody()),
         ],
       ),
+      floatingActionButton: SpeedDial(
+        child: Icon(Icons.add),
+        closedForegroundColor: Palette.kToDark,
+        openForegroundColor: Colors.white,
+        closedBackgroundColor: Colors.white,
+        openBackgroundColor: Palette.kToDark,
+        labelsBackgroundColor: Colors.white,
+        speedDialChildren: <SpeedDialChild>[
+          SpeedDialChild(
+            child: Icon(Icons.assignment_add),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Create Assigment',
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => CreateAssignmentForm(
+                        roomKey: widget.room.key,
+                      )));
+            },
+            closeSpeedDialOnPressed: true,
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.assessment),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Create Assessment',
+            onPressed: () {},
+            closeSpeedDialOnPressed: true,
+          ),
+          //  Your other SpeedDialChildren go here.
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
@@ -230,6 +297,10 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
             icon: Icon(Icons.person),
             label: 'People',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            label: 'Assignments',
+          ),
         ],
       ),
     );
@@ -241,6 +312,8 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
         return _buildAnnouncements();
       case 1:
         return _buildPeople();
+      case 2:
+        return _buildAssignments();
       default:
         return Container();
     }
@@ -449,6 +522,70 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAssignments() {
+    return RefreshIndicator(
+      onRefresh: () {
+        return _getAssignments();
+      },
+      child: ListView.builder(
+          itemCount: _assignmentsList.length,
+          itemBuilder: (BuildContext context, int index) {
+            Assignment assignment = _assignmentsList[index];
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AssignmentDetailScreen(assignment: assignment),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Container(
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: Colors.grey),
+                        child: Icon(
+                          Icons.assignment,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${assignment.title ?? 'No Title'} ',
+                            style: TextStyle(
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          Text(
+                            'Due: ${DateFormat.yMMMMd().format(DateTime.parse(assignment.due!))}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
     );
   }
 }
