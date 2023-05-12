@@ -4,16 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:simple_speed_dial/simple_speed_dial.dart';
 import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/announcement_model.dart';
+import 'package:stepteacher/models/assessment_model.dart';
 import 'package:stepteacher/models/assignment_model.dart';
 import 'package:stepteacher/models/people_model.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/models/room_model.dart';
 import 'package:stepteacher/palette.dart';
+import 'package:stepteacher/screens/assessment_detail.dart';
 import 'package:stepteacher/screens/assignment_detail.dart';
 import 'package:stepteacher/screens/comment.dart';
+import 'package:stepteacher/screens/create_assessment.dart';
 import 'package:stepteacher/screens/create_assignment.dart';
 import 'package:stepteacher/screens/login.dart';
 import 'package:stepteacher/services/announcement_service.dart';
+import 'package:stepteacher/services/assessment_service.dart';
 import 'package:stepteacher/services/assignment_service.dart';
 import 'package:stepteacher/services/people%20service.dart';
 import 'package:stepteacher/services/user_service.dart';
@@ -47,6 +51,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
   List<dynamic> _announcementsList = [];
   List<dynamic> _peopleList = [];
   List<dynamic> _assignmentsList = [];
+  List<dynamic> _assessmentsList = [];
   bool _loading = true;
   int userId = 0;
   int _currentIndex = 0;
@@ -146,6 +151,28 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
     }
   }
 
+  // Get Assessments
+  Future<void> _getAssessments() async {
+    userId = await getUserId();
+    ApiResponse response = await getAssessments(widget.room.id ?? 0);
+
+    if (response.error == null) {
+      setState(() {
+        _assessmentsList = response.data as List<dynamic>;
+        _loading = _loading ? !_loading : _loading;
+      });
+    } else if (response.error == unauthorized) {
+      logout().then((value) => {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => Login()),
+                (route) => false)
+          });
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('${response.error}')));
+    }
+  }
+
   googleMeet() async {
     final url = widget.room.vclink ?? 'https://meet.google.com/';
     final uri = Uri.parse(url);
@@ -157,6 +184,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
     _getAnnouncements();
     _getPeople();
     _getAssignments();
+    _getAssessments();
     super.initState();
   }
 
@@ -274,7 +302,12 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
             foregroundColor: Colors.white,
             backgroundColor: Palette.kToDark,
             label: 'Create Assessment',
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => CreateAssessmentForm(
+                        roomKey: widget.room.key,
+                      )));
+            },
             closeSpeedDialOnPressed: true,
           ),
           //  Your other SpeedDialChildren go here.
@@ -301,6 +334,10 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
             icon: Icon(Icons.assignment),
             label: 'Assignments',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assessment),
+            label: 'Assessments',
+          ),
         ],
       ),
     );
@@ -314,6 +351,8 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
         return _buildPeople();
       case 2:
         return _buildAssignments();
+      case 3:
+        return _buildAssessments();
       default:
         return Container();
     }
@@ -573,6 +612,88 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                           ),
                           Text(
                             'Due: ${DateFormat.yMMMMd().format(DateTime.parse(assignment.due!))}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
+  Widget _buildAssessments() {
+    return RefreshIndicator(
+      onRefresh: () {
+        return _getAssessments();
+      },
+      child: ListView.builder(
+          itemCount: _assessmentsList.length,
+          itemBuilder: (BuildContext context, int index) {
+            Assessment assessment = _assessmentsList[index];
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AssessmentDetailScreen(assessment: assessment),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Container(
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: Colors.grey),
+                        child: Icon(
+                          Icons.assignment,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                '${assessment.title ?? 'No Title'} ',
+                                style: TextStyle(
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              Text(
+                                '${assessment.status}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            'Start: ${assessment.startDate}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            'Due: ${assessment.endDate}',
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 12,

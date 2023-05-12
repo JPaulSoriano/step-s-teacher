@@ -38,7 +38,6 @@ class _AssignmentDetailScreenState extends State<AssignmentDetailScreen> {
                     : widget.assignment.title!,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
               ),
-              SizedBox(height: 8),
               Text(
                 'Due ${DateFormat.yMMMMd().format(DateTime.parse(widget.assignment.due!))}',
                 style: TextStyle(color: Colors.grey),
