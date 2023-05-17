@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/models/user_model.dart';
-import 'package:stepteacher/screens/comment.dart';
 import 'package:stepteacher/screens/create_room.dart';
 import 'package:stepteacher/screens/login.dart';
-import 'package:stepteacher/screens/profile.dart';
 import 'package:stepteacher/screens/rooms.dart';
+import 'package:stepteacher/screens/sharedtopics.dart';
+import 'package:stepteacher/screens/topics.dart';
 import 'package:stepteacher/services/user_service.dart';
 
 class Home extends StatefulWidget {
@@ -18,7 +18,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int currentIndex = 0;
   User? user;
-  int notificationsCount = 0;
 
   void getUser() async {
     ApiResponse response = await getUserDetail();
@@ -86,11 +85,21 @@ class _HomeState extends State<Home> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.person),
-              title: Text('Profile'),
+              leading: Icon(Icons.topic),
+              title: Text('Topics'),
               onTap: () {
                 setState(() {
                   currentIndex = 1;
+                  Navigator.pop(context);
+                });
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.topic_outlined),
+              title: Text('Shared Topics'),
+              onTap: () {
+                setState(() {
+                  currentIndex = 2;
                   Navigator.pop(context);
                 });
               },
@@ -109,7 +118,14 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      body: currentIndex == 0 ? RoomScreen() : Profile(user: user),
+      body: IndexedStack(
+        index: currentIndex,
+        children: [
+          RoomScreen(),
+          TopicScreen(),
+          SharedTopicScreen(),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         elevation: 0,
         onPressed: () {

@@ -13,6 +13,9 @@ const createRoomURL = baseURL + '/teacher/rooms/create';
 const coursesURL = baseURL + '/teacher/courses';
 const createAssignmentURL = baseURL + '/teacher/rooms';
 const createAssessmentURL = baseURL + '/teacher/rooms';
+const viewscoretURL = baseURL + '/teacher/assessments';
+const topicsURL = baseURL + '/teacher/topics';
+const sharedtopicsURL = baseURL + '/teacher/sharedtopics';
 // ----- Errors -----
 const serverError = 'Server error';
 const unauthorized = 'Unauthorized';

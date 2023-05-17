@@ -62,19 +62,22 @@ class _AssignmentDetailScreenState extends State<AssignmentDetailScreen> {
                 'Attachments',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
               ),
-              TextButton(
-                onPressed: () {
-                  if (widget.assignment.url != null) {
-                    downloadFile(widget.assignment.url!);
-                  }
-                },
-                child: Text(widget.assignment.file ?? 'No Attachments'),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () {
+                    if (widget.assignment.url != null) {
+                      downloadFile(widget.assignment.url!);
+                    }
+                  },
+                  child: Text(widget.assignment.file ?? 'No Attachments'),
+                ),
               ),
               Divider(),
               SizedBox(height: 18),
               Text(
                 'Submitted',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: Colors.black, fontSize: 16),
               ),
               SizedBox(height: 18),
               ListView.builder(

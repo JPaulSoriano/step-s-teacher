@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stepteacher/models/assessment_model.dart';
+import 'package:stepteacher/screens/viewscore.dart';
 
 class AssessmentDetailScreen extends StatefulWidget {
   final Assessment assessment;
@@ -47,10 +48,32 @@ class _AssessmentDetailScreenState extends State<AssessmentDetailScreen> {
                 '${widget.assessment.duration} Minutes | ${widget.assessment.items} Items | ${widget.assessment.passing_score}% Passing Score',
                 style: TextStyle(color: Colors.grey),
               ),
+              Text(
+                'Questions: ${widget.assessment.questionCount}',
+                style: TextStyle(color: Colors.grey),
+              ),
+              Divider(),
+              Text(
+                'Note: Choosing or Selecting the questions for assessments only available on step s web app.',
+                style: TextStyle(color: Colors.grey),
+              ),
               Divider(),
               Text(
                 widget.assessment.description ?? 'No Description',
                 style: TextStyle(color: Colors.grey),
+              ),
+              Divider(),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ViewScoreSreen(
+                              assessmentId: widget.assessment.id,
+                            )));
+                  },
+                  child: Text('Student Scores'),
+                ),
               ),
             ],
           ),

@@ -159,13 +159,16 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
               SizedBox(
                 height: 10,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _createAssignment();
-                  }
-                },
-                child: Text('Create Assignment'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _createAssignment();
+                    }
+                  },
+                  child: Text('Create Assignment'),
+                ),
               ),
             ],
           ),

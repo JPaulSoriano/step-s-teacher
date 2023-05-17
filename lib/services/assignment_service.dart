@@ -73,9 +73,6 @@ Future<ApiResponse> createAssignment(
       case 200:
         apiResponse.data = jsonDecode(response.body)['message'];
         break;
-      case 403:
-        apiResponse.error = jsonDecode(response.body)['message'];
-        break;
       case 401:
         apiResponse.error = unauthorized;
         break;

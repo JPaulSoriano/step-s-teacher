@@ -268,13 +268,23 @@ class _CreateAssessmentFormState extends State<CreateAssessmentForm> {
                 SizedBox(
                   height: 10,
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _createAssessment();
-                    }
-                  },
-                  child: Text('Create Assessment'),
+                Text(
+                  'Note: Choosing or Selecting the questions for assessments only available on step s web app.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _createAssessment();
+                      }
+                    },
+                    child: Text('Create Assessment'),
+                  ),
                 ),
               ],
             ),

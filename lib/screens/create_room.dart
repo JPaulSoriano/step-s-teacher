@@ -154,13 +154,16 @@ class _CreateRoomFormState extends State<CreateRoomForm> {
               SizedBox(
                 height: 10,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    _createRoom();
-                  }
-                },
-                child: Text('Create Room'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _createRoom();
+                    }
+                  },
+                  child: Text('Create Room'),
+                ),
               ),
             ],
           ),
