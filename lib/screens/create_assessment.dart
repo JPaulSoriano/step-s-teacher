@@ -124,7 +124,7 @@ class _CreateAssessmentFormState extends State<CreateAssessmentForm> {
                 SizedBox(
                   height: 10,
                 ),
-                Text('Date Format: 2023-01-31 00:00:00'),
+                Text('Date Format: YYYY-MM-DD 24:00:00'),
                 TextFormField(
                   controller: _start_dateController,
                   validator: (val) =>

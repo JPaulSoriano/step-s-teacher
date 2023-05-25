@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/models/user_model.dart';
+import 'package:stepteacher/palette.dart';
 import 'package:stepteacher/screens/create_room.dart';
+import 'package:stepteacher/screens/create_topic.dart';
 import 'package:stepteacher/screens/login.dart';
 import 'package:stepteacher/screens/rooms.dart';
 import 'package:stepteacher/screens/sharedtopics.dart';
 import 'package:stepteacher/screens/topics.dart';
 import 'package:stepteacher/services/user_service.dart';
+import 'package:simple_speed_dial/simple_speed_dial.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -126,13 +129,38 @@ class _HomeState extends State<Home> {
           SharedTopicScreen(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        elevation: 0,
-        onPressed: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => CreateRoomForm()));
-        },
+      floatingActionButton: SpeedDial(
         child: Icon(Icons.add),
+        closedForegroundColor: Palette.kToDark,
+        openForegroundColor: Colors.white,
+        closedBackgroundColor: Colors.white,
+        openBackgroundColor: Palette.kToDark,
+        labelsBackgroundColor: Colors.white,
+        speedDialChildren: <SpeedDialChild>[
+          SpeedDialChild(
+            child: Icon(Icons.home),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Create Room',
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => CreateRoomForm()));
+            },
+            closeSpeedDialOnPressed: true,
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.topic),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Create Topic',
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => CreateTopicForm()));
+            },
+            closeSpeedDialOnPressed: true,
+          ),
+          //  Your other SpeedDialChildren go here.
+        ],
       ),
     );
   }

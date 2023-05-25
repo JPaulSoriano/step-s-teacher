@@ -6,19 +6,24 @@ import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/announcement_model.dart';
 import 'package:stepteacher/models/assessment_model.dart';
 import 'package:stepteacher/models/assignment_model.dart';
+import 'package:stepteacher/models/attendance_model.dart';
 import 'package:stepteacher/models/people_model.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/models/room_model.dart';
 import 'package:stepteacher/palette.dart';
 import 'package:stepteacher/screens/assessment_detail.dart';
 import 'package:stepteacher/screens/assignment_detail.dart';
+import 'package:stepteacher/screens/attendance_detail.dart';
 import 'package:stepteacher/screens/comment.dart';
 import 'package:stepteacher/screens/create_assessment.dart';
 import 'package:stepteacher/screens/create_assignment.dart';
+import 'package:stepteacher/screens/create_attendance.dart';
+import 'package:stepteacher/screens/editvclink.dart';
 import 'package:stepteacher/screens/login.dart';
 import 'package:stepteacher/services/announcement_service.dart';
 import 'package:stepteacher/services/assessment_service.dart';
 import 'package:stepteacher/services/assignment_service.dart';
+import 'package:stepteacher/services/attendace_service.dart';
 import 'package:stepteacher/services/people%20service.dart';
 import 'package:stepteacher/services/user_service.dart';
 import 'dart:async';
@@ -52,6 +57,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
   List<dynamic> _peopleList = [];
   List<dynamic> _assignmentsList = [];
   List<dynamic> _assessmentsList = [];
+  List<dynamic> _attendancesList = [];
   bool _loading = true;
   int userId = 0;
   int _currentIndex = 0;
@@ -173,6 +179,28 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
     }
   }
 
+  // Get Announcements
+  Future<void> _getAttendances() async {
+    userId = await getUserId();
+    ApiResponse response = await getAttendances(widget.room.id ?? 0);
+
+    if (response.error == null) {
+      setState(() {
+        _attendancesList = response.data as List<dynamic>;
+        _loading = _loading ? !_loading : _loading;
+      });
+    } else if (response.error == unauthorized) {
+      logout().then((value) => {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => Login()),
+                (route) => false)
+          });
+    } else {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('${response.error}')));
+    }
+  }
+
   googleMeet() async {
     final url = widget.room.vclink ?? 'https://meet.google.com/';
     final uri = Uri.parse(url);
@@ -185,6 +213,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
     _getPeople();
     _getAssignments();
     _getAssessments();
+    _getAttendances();
     super.initState();
   }
 
@@ -310,6 +339,32 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
             },
             closeSpeedDialOnPressed: true,
           ),
+          SpeedDialChild(
+            child: Icon(Icons.date_range),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Create Attendace',
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => CreateAttendanceForm(
+                        roomKey: widget.room.key,
+                      )));
+            },
+            closeSpeedDialOnPressed: true,
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.video_call),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Edit VC Link',
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => UpdateVCLinkForm(
+                        roomKey: widget.room.key,
+                      )));
+            },
+            closeSpeedDialOnPressed: true,
+          ),
           //  Your other SpeedDialChildren go here.
         ],
       ),
@@ -338,6 +393,10 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
             icon: Icon(Icons.assessment),
             label: 'Assessments',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assessment),
+            label: 'Attendaces',
+          ),
         ],
       ),
     );
@@ -353,6 +412,8 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
         return _buildAssignments();
       case 3:
         return _buildAssessments();
+      case 4:
+        return _buildAttendances();
       default:
         return Container();
     }
@@ -363,94 +424,101 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
       onRefresh: () {
         return _getAnnouncements();
       },
-      child: ListView.builder(
-          itemCount: _announcementsList.length,
-          itemBuilder: (BuildContext context, int index) {
-            Announcement announcement = _announcementsList[index];
-            return Container(
-                margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                  BoxShadow(color: Colors.black26, blurRadius: 0)
-                ]),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: _announcementsList.isEmpty
+          ? Center(child: Text('No Announcements'))
+          : ListView.builder(
+              itemCount: _announcementsList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Announcement announcement = _announcementsList[index];
+                return Container(
+                    margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                      BoxShadow(color: Colors.black26, blurRadius: 0)
+                    ]),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(
+                                  left: 15, top: 15, bottom: 10),
+                              child: Row(
+                                children: [
+                                  SizedBox(width: 10),
+                                  CircleAvatar(
+                                    backgroundImage:
+                                        announcement.user?.avatar != null
+                                            ? CachedNetworkImageProvider(
+                                                '${announcement.user!.avatar}')
+                                            : null,
+                                    child: announcement.user?.avatar == null
+                                        ? Text(
+                                            announcement.user?.name?[0] ?? '',
+                                            style: TextStyle(fontSize: 24),
+                                          )
+                                        : null,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${announcement.user!.name}',
+                                          style: TextStyle(),
+                                        ),
+                                        Text(
+                                          '${DateFormat.yMMMMd().format(DateTime.parse(announcement.created!))}',
+                                          style: TextStyle(color: Colors.grey),
+                                        ),
+                                      ]),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                         Container(
+                          width: MediaQuery.of(context).size.width - 40,
                           margin:
                               EdgeInsets.only(left: 15, top: 15, bottom: 10),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 10),
-                              CircleAvatar(
-                                backgroundImage:
-                                    announcement.user?.avatar != null
-                                        ? CachedNetworkImageProvider(
-                                            '${announcement.user!.avatar}')
-                                        : null,
-                                child: announcement.user?.avatar == null
-                                    ? Text(
-                                        announcement.user?.name?[0] ?? '',
-                                        style: TextStyle(fontSize: 24),
-                                      )
-                                    : null,
-                              ),
-                              SizedBox(width: 10),
-                              Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${announcement.user!.name}',
-                                      style: TextStyle(),
-                                    ),
-                                    Text(
-                                      '${DateFormat.yMMMMd().format(DateTime.parse(announcement.created!))}',
-                                      style: TextStyle(color: Colors.grey),
-                                    ),
-                                  ]),
-                            ],
+                          child: Text(
+                            '${announcement.title ?? 'No Title'}',
+                            style: TextStyle(fontSize: 15, color: Colors.grey),
                           ),
                         ),
-                      ],
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width - 40,
-                      margin: EdgeInsets.only(left: 15, top: 15, bottom: 10),
-                      child: Text(
-                        '${announcement.title ?? 'No Title'}',
-                        style: TextStyle(fontSize: 15, color: Colors.grey),
-                      ),
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width - 40,
-                      margin: EdgeInsets.only(left: 12, top: 15, bottom: 10),
-                      child: Text(
-                          '${announcement.body?.replaceAll(RegExp('<p>|</p>|<br />'), '') ?? 'No Body'}'),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => CommentScreen(
-                                  announcementID: announcement.id,
-                                )));
-                      },
-                      child: Container(
-                        alignment: Alignment.centerLeft,
-                        height: 40,
-                        width: MediaQuery.of(context).size.width - 30,
-                        margin: EdgeInsets.only(left: 15),
-                        child: Text(
-                          "Class Comments",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        Container(
+                          width: MediaQuery.of(context).size.width - 40,
+                          margin:
+                              EdgeInsets.only(left: 12, top: 15, bottom: 10),
+                          child: Text(
+                              '${announcement.body?.replaceAll(RegExp('<p>|</p>|<br />'), '') ?? 'No Body'}'),
                         ),
-                      ),
-                    )
-                  ],
-                ));
-          }),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => CommentScreen(
+                                      announcementID: announcement.id,
+                                    )));
+                          },
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            height: 40,
+                            width: MediaQuery.of(context).size.width - 30,
+                            margin: EdgeInsets.only(left: 15),
+                            child: Text(
+                              '${announcement.commentCount ?? 'No Class Comment'} Class Comment',
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ),
+                        )
+                      ],
+                    ));
+              }),
     );
   }
 
@@ -569,62 +637,64 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
       onRefresh: () {
         return _getAssignments();
       },
-      child: ListView.builder(
-          itemCount: _assignmentsList.length,
-          itemBuilder: (BuildContext context, int index) {
-            Assignment assignment = _assignmentsList[index];
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AssignmentDetailScreen(assignment: assignment),
+      child: _assignmentsList.isEmpty
+          ? Center(child: Text('No Assignments'))
+          : ListView.builder(
+              itemCount: _assignmentsList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Assignment assignment = _assignmentsList[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AssignmentDetailScreen(assignment: assignment),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Container(
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.grey),
+                            child: Icon(
+                              Icons.assignment,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${assignment.title ?? 'No Title'} ',
+                                style: TextStyle(
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              Text(
+                                'Due: ${DateFormat.yMMMMd().format(DateTime.parse(assignment.due!))}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
                   ),
                 );
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.grey),
-                        child: Icon(
-                          Icons.assignment,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${assignment.title ?? 'No Title'} ',
-                            style: TextStyle(
-                              letterSpacing: 1,
-                            ),
-                          ),
-                          Text(
-                            'Due: ${DateFormat.yMMMMd().format(DateTime.parse(assignment.due!))}',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
+              }),
     );
   }
 
@@ -633,42 +703,42 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
       onRefresh: () {
         return _getAssessments();
       },
-      child: ListView.builder(
-          itemCount: _assessmentsList.length,
-          itemBuilder: (BuildContext context, int index) {
-            Assessment assessment = _assessmentsList[index];
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AssessmentDetailScreen(assessment: assessment),
-                  ),
-                );
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Container(
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.grey),
-                        child: Icon(
-                          Icons.assignment,
-                          color: Colors.white,
-                          size: 30,
-                        ),
+      child: _assessmentsList.isEmpty
+          ? Center(child: Text('No assessments'))
+          : ListView.builder(
+              itemCount: _assessmentsList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Assessment assessment = _assessmentsList[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AssessmentDetailScreen(assessment: assessment),
                       ),
-                      SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Container(
+                      child: Row(
                         children: [
-                          Row(
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.grey),
+                            child: Icon(
+                              Icons.assignment,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 '${assessment.title ?? 'No Title'} ',
@@ -683,30 +753,94 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                                   fontSize: 12,
                                 ),
                               ),
+                              Text(
+                                'Start: ${assessment.startDate}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                'Due: ${assessment.endDate}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ],
-                          ),
-                          Text(
-                            'Start: ${assessment.startDate}',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            'Due: ${assessment.endDate}',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ),
-                          ),
+                          )
                         ],
-                      )
-                    ],
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          }),
+                );
+              }),
+    );
+  }
+
+  Widget _buildAttendances() {
+    return RefreshIndicator(
+      onRefresh: () {
+        return _getAttendances();
+      },
+      child: _attendancesList.isEmpty
+          ? Center(child: Text('No attendances'))
+          : ListView.builder(
+              itemCount: _attendancesList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Attendance attendance = _attendancesList[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            AttendanceDetailScreen(attendance: attendance),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Container(
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.grey),
+                            child: Icon(
+                              Icons.date_range,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${attendance.description ?? 'No Description'}',
+                                style: TextStyle(
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              Text(
+                                '${DateFormat.yMMMMd().format(DateTime.parse(attendance.date ?? 'No Date'))}',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
     );
   }
 }

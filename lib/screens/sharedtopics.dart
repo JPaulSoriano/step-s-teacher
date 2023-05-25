@@ -79,11 +79,26 @@ class _SharedTopicScreenState extends State<SharedTopicScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${sharedtopic.name ?? 'No Name'} ',
+                                  '${sharedtopic.name ?? 'No Title'} by ${sharedtopic.owner ?? 'No Name'}',
                                   style: TextStyle(
                                     letterSpacing: 1,
+                                    fontSize: 16,
                                   ),
                                 ),
+                                Text(
+                                  'Questions: ${sharedtopic.questionsCount ?? '0'} ',
+                                  style: TextStyle(
+                                    letterSpacing: 1,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  'Materials: ${sharedtopic.materialsCount ?? '0'} ',
+                                  style: TextStyle(
+                                    letterSpacing: 1,
+                                    fontSize: 12,
+                                  ),
+                                )
                               ],
                             )
                           ],

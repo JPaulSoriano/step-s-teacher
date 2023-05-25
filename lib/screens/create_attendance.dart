@@ -2,26 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/screens/login.dart';
-import 'package:stepteacher/services/assignment_service.dart';
+import 'package:stepteacher/services/attendace_service.dart';
 import 'package:stepteacher/services/user_service.dart';
 
-class CreateAssignmentForm extends StatefulWidget {
+class CreateAttendanceForm extends StatefulWidget {
   final String? roomKey;
-  CreateAssignmentForm({this.roomKey});
+  CreateAttendanceForm({this.roomKey});
 
   @override
-  _CreateAssignmentFormState createState() => _CreateAssignmentFormState();
+  _CreateAttendanceFormState createState() => _CreateAttendanceFormState();
 }
 
-class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
+class _CreateAttendanceFormState extends State<CreateAttendanceForm> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _instructionsController = TextEditingController();
-  final TextEditingController _due_dateController = TextEditingController();
-  final TextEditingController _pointsController = TextEditingController();
   final TextEditingController _gradingController = TextEditingController();
-  final TextEditingController _allowed_submissionController =
+  final TextEditingController _attendance_dateController =
       TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _expiry_dateController = TextEditingController();
+  final TextEditingController _expiry_timeController = TextEditingController();
   static const List<String> list = <String>[
     'prelim',
     'midterm',
@@ -29,16 +28,15 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
     'finals'
   ];
   String? dropdownValue;
-  // create Assignment
-  void _createAssignment() async {
-    ApiResponse response = await createAssignment(
+  // create Attendance
+  void _createAttendance() async {
+    ApiResponse response = await createAttendance(
       widget.roomKey!,
-      _titleController.text,
-      _instructionsController.text,
-      _due_dateController.text,
-      _pointsController.text,
       _gradingController.text,
-      _allowed_submissionController.text,
+      _attendance_dateController.text,
+      _descriptionController.text,
+      _expiry_dateController.text,
+      _expiry_timeController.text,
     );
     if (response.error == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +68,7 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
       appBar: new AppBar(
         elevation: 0,
         title: new Text(
-          'Create Assignment',
+          'Create Attendace',
         ),
       ),
       body: Form(
@@ -79,42 +77,6 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              SizedBox(
-                height: 10,
-              ),
-              TextFormField(
-                controller: _titleController,
-                validator: (val) => val!.isEmpty ? 'Title Required' : null,
-                decoration: kInputDecoration('Title'),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              TextFormField(
-                controller: _instructionsController,
-                validator: (val) =>
-                    val!.isEmpty ? 'Instructions Required' : null,
-                decoration: kInputDecoration('Instructions'),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Text('Date Format: YYYY-MM-DD 24:00:00'),
-              TextFormField(
-                controller: _due_dateController,
-                validator: (val) => val!.isEmpty ? 'Due Date Required' : null,
-                decoration: kInputDecoration('Due Date'),
-                keyboardType: TextInputType.text,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              TextFormField(
-                controller: _pointsController,
-                validator: (val) => val!.isEmpty ? 'Points Required' : null,
-                decoration: kInputDecoration('Points'),
-                keyboardType: TextInputType.number,
-              ),
               SizedBox(
                 height: 10,
               ),
@@ -149,25 +111,54 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
               SizedBox(
                 height: 10,
               ),
+              Text('Date Format: YYYY-MM-DD'),
               TextFormField(
-                controller: _allowed_submissionController,
-                validator: (val) =>
-                    val!.isEmpty ? 'Allowed No of Submission Required' : null,
-                decoration: kInputDecoration('Allowed No of Submission'),
-                keyboardType: TextInputType.number,
+                controller: _attendance_dateController,
+                validator: (val) => val!.isEmpty ? 'Date Required' : null,
+                decoration: kInputDecoration('Date'),
+                keyboardType: TextInputType.datetime,
               ),
               SizedBox(
                 height: 10,
+              ),
+              TextFormField(
+                controller: _descriptionController,
+                validator: (val) =>
+                    val!.isEmpty ? 'Description Required' : null,
+                decoration: kInputDecoration('Description'),
+                keyboardType: TextInputType.text,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text('Date Format: YYYY-MM-DD'),
+              TextFormField(
+                controller: _expiry_dateController,
+                validator: (val) =>
+                    val!.isEmpty ? 'Expiry Date Required' : null,
+                decoration: kInputDecoration('Expiry Date'),
+                keyboardType: TextInputType.datetime,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text('Time Format: 24:00:00'),
+              TextFormField(
+                controller: _expiry_timeController,
+                validator: (val) =>
+                    val!.isEmpty ? 'Expiry Time Required' : null,
+                decoration: kInputDecoration('Expiry Time'),
+                keyboardType: TextInputType.datetime,
               ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      _createAssignment();
+                      _createAttendance();
                     }
                   },
-                  child: Text('Create Assignment'),
+                  child: Text('Create Attendance'),
                 ),
               ),
             ],

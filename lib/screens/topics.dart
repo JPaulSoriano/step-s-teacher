@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:stepteacher/constants.dart';
 import 'package:stepteacher/models/response_model.dart';
-import 'package:stepteacher/models/sharedtopics_model.dart';
 import 'package:stepteacher/models/topics_model.dart';
 import 'package:stepteacher/screens/login.dart';
+import 'package:stepteacher/screens/topic_detail.dart';
 import 'package:stepteacher/services/topics_service.dart';
 import 'package:stepteacher/services/user_service.dart';
 import 'dart:async';
@@ -57,7 +57,13 @@ class _TopicScreenState extends State<TopicScreen> {
                 itemCount: _topicsList.length,
                 itemBuilder: (BuildContext context, int index) {
                   Topic topic = _topicsList[index];
-                  return InkWell(
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => TopicDetailScreen(
+                                topic: topic,
+                              )));
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: Container(
@@ -83,10 +89,25 @@ class _TopicScreenState extends State<TopicScreen> {
                                   '${topic.name ?? 'No Name'} ',
                                   style: TextStyle(
                                     letterSpacing: 1,
+                                    fontSize: 16,
                                   ),
                                 ),
+                                Text(
+                                  'Questions: ${topic.questionsCount ?? '0'} ',
+                                  style: TextStyle(
+                                    letterSpacing: 1,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Text(
+                                  'Materials: ${topic.materialsCount ?? '0'} ',
+                                  style: TextStyle(
+                                    letterSpacing: 1,
+                                    fontSize: 12,
+                                  ),
+                                )
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),

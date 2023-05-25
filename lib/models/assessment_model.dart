@@ -43,7 +43,7 @@ class Assessment {
       duration: json['duration'],
       items: json['items'],
       passing_score: json['passing_score'],
-      questionCount: json['questions'].length,
+      questionCount: json['questions_count'],
     );
   }
 }

@@ -5,8 +5,15 @@ class Comment {
   String? body;
   String? created;
   User? user;
+  int? commentCount;
 
-  Comment({this.id, this.body, this.created, this.user});
+  Comment({
+    this.id,
+    this.body,
+    this.created,
+    this.user,
+    this.commentCount,
+  });
 
   // map json to comment model
   factory Comment.fromJson(Map<String, dynamic> json) {
@@ -19,6 +26,7 @@ class Comment {
         name: json['user']['full_name'],
         avatar: json['user']['avatar'],
       ),
+      commentCount: json['comment_count'],
     );
   }
 }
