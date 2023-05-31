@@ -4,12 +4,14 @@ import 'package:stepteacher/models/material_model.dart';
 import 'package:stepteacher/models/question_model.dart';
 import 'package:stepteacher/models/response_model.dart';
 import 'package:stepteacher/models/topics_model.dart';
+import 'package:stepteacher/palette.dart';
 import 'package:stepteacher/screens/login.dart';
 import 'package:stepteacher/services/materials_service.dart';
 import 'package:stepteacher/services/questions_service.dart';
 import 'package:stepteacher/services/user_service.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:simple_speed_dial/simple_speed_dial.dart';
 
 class TopicDetailScreen extends StatefulWidget {
   final Topic topic;
@@ -88,6 +90,44 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
       body: Column(
         children: [
           Expanded(child: _buildBody()),
+        ],
+      ),
+      floatingActionButton: SpeedDial(
+        child: Icon(Icons.add),
+        closedForegroundColor: Palette.kToDark,
+        openForegroundColor: Colors.white,
+        closedBackgroundColor: Colors.white,
+        openBackgroundColor: Palette.kToDark,
+        labelsBackgroundColor: Colors.white,
+        speedDialChildren: <SpeedDialChild>[
+          SpeedDialChild(
+            child: Icon(Icons.question_mark),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Add Question (Coming Soon)',
+            onPressed: () {
+              // Navigator.of(context).push(MaterialPageRoute(
+              //     builder: (context) => CreateAssignmentForm(
+              //           roomKey: widget.room.key,
+              //         )));
+            },
+            closeSpeedDialOnPressed: true,
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.edit_document),
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.kToDark,
+            label: 'Add Material (Coming Soon)',
+            onPressed: () {
+              // Navigator.of(context).push(MaterialPageRoute(
+              //     builder: (context) => CreateAssignmentForm(
+              //           roomKey: widget.room.key,
+              //         )));
+            },
+            closeSpeedDialOnPressed: true,
+          ),
+
+          //  Your other SpeedDialChildren go here.
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -214,6 +254,13 @@ class _TopicDetailScreenState extends State<TopicDetailScreen> {
                                   '${material.title ?? ''}',
                                   style: TextStyle(
                                     letterSpacing: 1,
+                                  ),
+                                ),
+                                Text(
+                                  '${material.description ?? ''}',
+                                  style: TextStyle(
+                                    letterSpacing: 1,
+                                    fontSize: 12.0,
                                   ),
                                 ),
                               ],

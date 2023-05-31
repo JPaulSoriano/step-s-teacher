@@ -1,10 +1,12 @@
 class TopicMaterial {
   int? id;
   String? title;
+  String? description;
 
   TopicMaterial({
     this.id,
     this.title,
+    this.description,
   });
 
   // map json to comment model
@@ -12,6 +14,7 @@ class TopicMaterial {
     return TopicMaterial(
       id: json['id'],
       title: json['title'],
+      description: json['description'],
     );
   }
 }

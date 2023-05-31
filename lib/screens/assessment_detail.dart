@@ -54,7 +54,7 @@ class _AssessmentDetailScreenState extends State<AssessmentDetailScreen> {
               ),
               Divider(),
               Text(
-                'Note: Choosing or Selecting the questions for assessments only available on step s web app.',
+                'Note: Choosing or Selecting the questions for assessments only available on step s web app for now.',
                 style: TextStyle(color: Colors.grey),
               ),
               Divider(),
