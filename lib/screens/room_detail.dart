@@ -808,8 +808,9 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                             height: 50,
                             width: 50,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                color: Colors.grey),
+                              borderRadius: BorderRadius.circular(30),
+                              color: Colors.grey,
+                            ),
                             child: Icon(
                               Icons.date_range,
                               color: Colors.white,
@@ -817,24 +818,50 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                             ),
                           ),
                           SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${attendance.description ?? 'No Description'}',
-                                style: TextStyle(
-                                  letterSpacing: 1,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${attendance.description ?? 'No Description'}',
+                                  style: TextStyle(
+                                    letterSpacing: 1,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                '${DateFormat.yMMMMd().format(DateTime.parse(attendance.date ?? 'No Date'))}',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
+                                Text(
+                                  '${DateFormat.yMMMMd().format(DateTime.parse(attendance.date ?? 'No Date'))}',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
                                 ),
+                              ],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              deactivateAttendance(attendance.id ?? 0,
+                                      attendance.status == 0 ? '1' : '0')
+                                  .then((response) {
+                                if (response.error == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('${response.data}'),
+                                    ),
+                                  );
+                                  _getAttendances();
+                                }
+                              });
+                            },
+                            child: Text(
+                              attendance.status == 0
+                                  ? 'Activate'
+                                  : 'Deactivate',
+                              style: TextStyle(
+                                fontSize: 12,
                               ),
-                            ],
-                          )
+                            ),
+                          ),
                         ],
                       ),
                     ),

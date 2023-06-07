@@ -82,3 +82,39 @@ Future<ApiResponse> createAttendance(
   }
   return apiResponse;
 }
+
+Future<ApiResponse> deactivateAttendance(
+    int attendanceID, String? status) async {
+  ApiResponse apiResponse = ApiResponse();
+  try {
+    String token = await getToken();
+    final response = await http.put(
+        Uri.parse(
+            '$deactivateattendanceURL/$attendanceID/deactivateAttendance'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: {
+          'status': status
+        });
+
+    switch (response.statusCode) {
+      case 200:
+        apiResponse.data = jsonDecode(response.body)['message'];
+        break;
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        print('Request failed with status: ${response.statusCode}.');
+        print('Response body: ${response.body}');
+        break;
+    }
+  } catch (e) {
+    print(e);
+    apiResponse.error = serverError;
+  }
+  return apiResponse;
+}

@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:stepteacher/palette.dart';
 
-const baseURL = 'http://143.198.213.49/api';
+// const baseURL = 'http://143.198.213.49/api';
+const baseURL = 'https://udd.steps.com.ph/api';
 const loginURL = baseURL + '/teacher/login';
 const logoutURL = baseURL + '/teacher/logout';
 const userURL = baseURL + '/teacher/user';
@@ -19,6 +20,7 @@ const sharedtopicsURL = baseURL + '/teacher/sharedtopics';
 const createAttendanceURL = baseURL + '/teacher/rooms';
 const editVCLinkURL = baseURL + '/teacher/rooms';
 const createTopicURL = baseURL + '/teacher/topics/create';
+const deactivateattendanceURL = baseURL + '/teacher/attendance';
 // ----- Errors -----
 const serverError = 'Server error';
 const unauthorized = 'Unauthorized';

@@ -2,6 +2,7 @@ class Attendance {
   int? id;
   String? date;
   String? description;
+  int? status;
   String? edate;
   String? etime;
   List<StudentAttendances>? studentAttendances;
@@ -10,6 +11,7 @@ class Attendance {
       {this.id,
       this.date,
       this.description,
+      this.status,
       this.edate,
       this.etime,
       this.studentAttendances});
@@ -24,6 +26,7 @@ class Attendance {
       id: json['id'],
       date: json['attendance_date'],
       description: json['description'],
+      status: json['status'],
       edate: json['expiry_date'],
       etime: json['expiry_time'],
       studentAttendances: studentAttendances,
